@@ -1,10 +1,9 @@
 import glob
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
-
-BASE_PATH = "CICIDS2018_dataset/"
-FILE_PATH = "Processed Traffic Data for ML Algorithms copy/"
+from meta_data import *
 
 
 def drop_columns():
@@ -51,8 +50,47 @@ def make_DoS_dataset():
     pd.DataFrame(data_train).to_csv(BASE_PATH+"CICIDS2018_train_dos.csv", index=None)
     pd.DataFrame(data_val).to_csv(BASE_PATH+"CICIDS2018_val_dos.csv", index=None)
 
+def make_small_dataset():
+    all_data = []
+    for f in glob.glob(BASE_PATH+FILE_PATH+"*.csv"):
+        data = pd.read_csv(f, index_col=None, header=0)
+        all_data.append(data)
+    data = pd.concat(all_data, axis=0, ignore_index=True)
+    data = data.drop(['Timestamp'], axis=1)
+    data = data[~data['Dst Port'].str.contains("Dst", na=False)]
+    data_train, data_test = train_test_split(data, test_size=0.1)
+    pd.DataFrame(data_test).to_csv(BASE_PATH+"CICIDS2018_small.csv", index=None)
+
+def make_small_DoS_dataset():
+    data = pd.read_csv(BASE_PATH+"CICIDS2018_small.csv")
+    data = data[(data['Label'].str.contains('Benign')) |
+                (data['Label'].str.contains('DoS')) |
+                (data['Label'].str.contains('DOS'))]
+    data['Label'].replace(['Benign', 'DDOS attack-HOIC',
+        'DDOS attack-LOIC-UDP', 'DDoS attacks-LOIC-HTTP', 'DoS attacks-GoldenEye',
+        'DoS attacks-Hulk', 'DoS attacks-SlowHTTPTest', 'DoS attacks-Slowloris'],
+        [0, 1, 1, 1, 1, 1, 1, 1], inplace=True)
+    data_train, data_test = train_test_split(data, test_size=0.2)
+    data_train.to_csv(BASE_PATH+"CICIDS2018_small_dos_train.csv", index=False)
+    data_test.to_csv(BASE_PATH+"CICIDS2018_small_dos_test.csv", index=False)
+
+def balance():
+    data = []
+    benign = pd.read_csv(BASE_PATH+"CICIDS2018_only_benign.csv")
+    benign_big, benign_small = train_test_split(benign, test_size=0.15)
+    data.append(benign_small)
+    dos = pd.read_csv(BASE_PATH+"CICIDS2018_only_dos.csv")
+    data.append(dos)
+    data = pd.concat(data, axis=0, ignore_index=True)
+    data = shuffle(data)
+    print(data.head(10))
+    data.to_csv(BASE_PATH+"CICIDS2018_small_dos_balanced.csv", index=None)
+
 
 if __name__ == "__main__":
     #drop_columns()
     #make_dataset()
-    make_DoS_dataset()
+    #make_DoS_dataset()
+    #make_small_dataset()
+    make_small_DoS_dataset()
+    #balance()

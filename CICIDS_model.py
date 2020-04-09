@@ -10,9 +10,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import class_weight
 
 
-os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+os.environ["CUDA_VISIBLE_DEVICES"] = '1'
 BASE_PATH = "CICIDS2018_dataset/"
-MODEL_NAME = "IDSv1"
+MODEL_NAME = "models/IDS_small_v1"
 le = LabelEncoder()
 
 
@@ -49,8 +49,8 @@ def show_result(hist):
     plt.show()
 
 def train_model():
-    train_dataset = load_dataset(BASE_PATH+"CICIDS2018_train.csv")
-    test_dataset = load_dataset(BASE_PATH+"CICIDS2018_test.csv")
+    train_dataset = load_dataset(BASE_PATH+"CICIDS2018_test_small.csv")
+    #test_dataset = load_dataset(BASE_PATH+"CICIDS2018_test.csv")
 
     # METRICS = [
     #     keras.metrics.TruePositives(name='tp'),
@@ -65,9 +65,9 @@ def train_model():
 
     model = tf.keras.models.Sequential([
         keras.layers.Dense(64, activation='relu'),
-        keras.layers.Dropout(0.5),
+        #keras.layers.Dropout(0.5),
         keras.layers.Dense(64, activation='relu'),
-        keras.layers.Dropout(0.5),
+        #keras.layers.Dropout(0.5),
         keras.layers.Dense(15, activation='softmax')
     ])
 
@@ -87,7 +87,7 @@ def train_model():
     
     model.save(MODEL_NAME)
 
-    model.evaluate(test_dataset, verbose=2)
+    #model.evaluate(test_dataset, verbose=2)
 
 
 if __name__ == "__main__":

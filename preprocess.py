@@ -74,18 +74,6 @@ def make_small_DoS_dataset():
     data_train.to_csv(BASE_PATH+"CICIDS2018_small_dos_train.csv", index=False)
     data_test.to_csv(BASE_PATH+"CICIDS2018_small_dos_test.csv", index=False)
 
-def balance():
-    data = []
-    benign = pd.read_csv(BASE_PATH+"CICIDS2018_only_benign.csv")
-    benign_big, benign_small = train_test_split(benign, test_size=0.15)
-    data.append(benign_small)
-    dos = pd.read_csv(BASE_PATH+"CICIDS2018_only_dos.csv")
-    data.append(dos)
-    data = pd.concat(data, axis=0, ignore_index=True)
-    data = shuffle(data)
-    print(data.head(10))
-    data.to_csv(BASE_PATH+"CICIDS2018_small_dos_balanced.csv", index=None)
-
 
 if __name__ == "__main__":
     #drop_columns()
@@ -93,4 +81,3 @@ if __name__ == "__main__":
     #make_DoS_dataset()
     #make_small_dataset()
     make_small_DoS_dataset()
-    #balance()
